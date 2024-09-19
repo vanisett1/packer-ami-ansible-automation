@@ -32,6 +32,9 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
+    - name: Initialize Packer template
+      run: packer init packer-ami-golden.pkr.hcl
+
     - name: Validate Packer template
       run: packer validate packer-ami-golden.pkr.hcl
 
