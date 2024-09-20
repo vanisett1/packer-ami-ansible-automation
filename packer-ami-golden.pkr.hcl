@@ -28,8 +28,8 @@ source "amazon-ebs" "ubuntu_ami"{
   ami_name              = "golden-ami-{{timestamp}}"
   ami_description       = "AMI with CloudWatch Agent, SSM Agent, Docker, Git"
   iam_instance_profile  = "AmazonSSMManagedInstanceCore"
-  force_deregister      = true
-  force_delete_snapshot = true
+  # force_deregister      = true
+  # force_delete_snapshot = true
 }
 
 # Provisioners block - Ansible
