@@ -22,7 +22,7 @@ variable "aws_region" {
 
 source "amazon-ebs" "ubuntu_ami"{
   region                = var.aws_region
-  source_ami            = "ami-0c55b159cbfafe1f0"
+  source_ami            = "ami-0a0e5d9c7acc336f1"
   instance_type         = "t2.micro"
   ssh_username          = "ubuntu"
   ami_name              = "golden-ami-{{timestamp}}"
