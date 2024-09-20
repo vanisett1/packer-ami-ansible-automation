@@ -37,6 +37,7 @@ build {
 
   provisioner "ansible" {
     playbook_file = "./ansible/playbook.yaml"
+    extra_arguments = ["-vvv"]
   }
 }
   
