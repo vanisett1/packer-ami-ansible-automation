@@ -1,4 +1,3 @@
----
 - hosts: all
   become: yes
   tasks:
@@ -6,48 +5,39 @@
       apt:
         update_cache: yes
 
-    - name: Upgrade all packages
-      apt:
-        upgrade: full
-
     - name: Install CloudWatch Agent
       get_url:
         url: "https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
         dest: "/tmp/amazon-cloudwatch-agent.deb"
+
     - name: Install CloudWatch Agent package
       apt:
         deb: "/tmp/amazon-cloudwatch-agent.deb"
         state: present
 
-    - name: Download SSM Agent
-      get_url:
-        url: https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
-        dest: /tmp/amazon-ssm-agent.deb
-      
-    - name: Install SSM Agent
-      apt:
-        deb: /tmp/amazon-ssm-agent.deb
-        state: present
+    # Skip the installation if amazon-ssm-agent is installed by snap
+    - name: Check if amazon-ssm-agent is installed by snap
+      shell: snap list amazon-ssm-agent
+      register: ssm_installed
+      ignore_errors: true
 
-    - name: Enable and start AWS SSM Agent
+    - name: Ensure amazon-ssm-agent is running (if installed by snap)
       systemd:
         name: amazon-ssm-agent
-        enabled: yes
         state: started
+        enabled: yes
+      when: ssm_installed.rc == 0
 
-    - name: Add Docker GPG apt Key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
+    # If amazon-ssm-agent is not installed via snap, install via apt or other method
+    - name: Install AWS SSM Agent (if not installed by snap)
+      apt:
+        name: amazon-ssm-agent
         state: present
-
-    - name: Add Docker Repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
+      when: ssm_installed.rc != 0
 
     - name: Install Docker
       apt:
-        name: docker-ce
+        name: docker.io
         state: present
 
     - name: Enable and start Docker
@@ -56,20 +46,7 @@
         enabled: yes
         state: started
 
-    - name: Add user to docker group
-      user:
-        name: "{{ ansible_user }}"
-        groups: docker
-        append: yes
-
     - name: Install Git
       apt:
         name: git
-        state: present
-
-    - name: Install additional packages
-      apt:
-        name:
-          - python3-pip
-          - unzip
         state: present
