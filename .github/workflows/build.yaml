@@ -3,7 +3,9 @@ name: Build AMI with Packer and Ansible
 on:
   push:
     branches:
-      - main  
+      - main
+  workflow_dispatch:
+
 
 jobs:
   build_ami:
